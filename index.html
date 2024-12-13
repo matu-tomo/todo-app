@@ -177,6 +177,12 @@
                 <option value="仕事">仕事</option>
                 <option value="その他">その他</option>
             </select>
+            <select id="filterPriority" onchange="filterByPriority()">
+                <option value="すべて">すべて</option>
+                <option value="3">高</option>
+                <option value="2">中</option>
+                <option value="1">低</option>
+            </select>
             <select id="filterSelect" onchange="filterTasks()">
                 <option value="すべて">すべて</option>
                 <option value="完了">完了</option>
@@ -194,6 +200,7 @@
         const prioritySelect = document.getElementById('prioritySelect');
         const filterSelect = document.getElementById('filterSelect');
         const filterCategory = document.getElementById('filterCategory');
+        const filterPriority = document.getElementById('filterPriority');
 
         let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 
@@ -268,13 +275,19 @@
             renderTasks();
         }
 
+        function filterByPriority() {
+            renderTasks();
+        }
+
         function shouldDisplayTask(task) {
             const statusFilter = filterSelect.value;
             const categoryFilter = filterCategory.value;
+            const priorityFilter = filterPriority.value;
 
             if (statusFilter === '完了' && !task.completed) return false;
             if (statusFilter === '未完了' && task.completed) return false;
             if (categoryFilter !== 'すべて' && task.category !== categoryFilter) return false;
+            if (priorityFilter !== 'すべて' && task.priority !== parseInt(priorityFilter, 10)) return false;
 
             return true;
         }
@@ -283,4 +296,3 @@
     </script>
 </body>
 </html>
-
