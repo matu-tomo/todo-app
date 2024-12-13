@@ -66,9 +66,20 @@
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .filter-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .filter-group label {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 5px;
         }
         .filters select {
-            flex: 1;
             padding: 10px;
             font-size: 16px;
             border: 1px solid #ddd;
@@ -178,23 +189,32 @@
             <button onclick="addTask()">追加</button>
         </div>
         <div class="filters">
-            <select id="filterCategory" onchange="filterByCategory()">
-                <option value="すべて">すべて</option>
-                <option value="個人">個人</option>
-                <option value="仕事">仕事</option>
-                <option value="その他">その他</option>
-            </select>
-            <select id="filterPriority" onchange="filterByPriority()">
-                <option value="すべて">すべて</option>
-                <option value="3">高</option>
-                <option value="2">中</option>
-                <option value="1">低</option>
-            </select>
-            <select id="filterSelect" onchange="filterTasks()">
-                <option value="すべて">すべて</option>
-                <option value="完了">完了</option>
-                <option value="未完了">未完了</option>
-            </select>
+            <div class="filter-group">
+                <label for="filterCategory">タスク種別</label>
+                <select id="filterCategory" onchange="filterByCategory()">
+                    <option value="すべて">すべて</option>
+                    <option value="個人">個人</option>
+                    <option value="仕事">仕事</option>
+                    <option value="その他">その他</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="filterPriority">優先度</label>
+                <select id="filterPriority" onchange="filterByPriority()">
+                    <option value="すべて">すべて</option>
+                    <option value="3">高</option>
+                    <option value="2">中</option>
+                    <option value="1">低</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="filterSelect">完了予定日</label>
+                <select id="filterSelect" onchange="filterTasks()">
+                    <option value="すべて">すべて</option>
+                    <option value="完了">完了</option>
+                    <option value="未完了">未完了</option>
+                </select>
+            </div>
         </div>
         <ul class="task-list" id="taskList"></ul>
     </div>
@@ -250,7 +270,7 @@
                 dueDate: due,
                 priority: parseInt(priority, 10),
                 completed: false,
-                createdDate: today
+                createdDate: today,
             });
             taskInput.value = '';
             dueDate.value = today;
@@ -303,3 +323,4 @@
     </script>
 </body>
 </html>
+
