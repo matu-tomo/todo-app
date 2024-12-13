@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>TODO</title>
+    <link rel="manifest" href="manifest.json">
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./service-worker.js')
+                .then(() => console.log('Service Worker Registered'));
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            background: #ffffff;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.6em;
+        }
+        .controls {
+            margin-bottom: 15px;
+        }
+        .task-input {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .task-input input[type="text"], .task-input select, .task-input input[type="date"], .task-input button {
+            flex: 1;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        .task-input button {
+            flex: 1;
+            font-size: 14px;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .task-input button:hover {
+            background-color: #0056b3;
+        }
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .filters select, .filters button {
+            flex: 1;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .task-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .task-item {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #ffffff;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .task-item:hover {
+            background-color: #f9f9f9;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .task-item.due-soon {
+            border-left: 5px solid #ffc107;
+        }
+        .task-item.completed {
+            text-decoration: line-through;
+            color: #888;
+            background-color: #e8f5e9;
+            border-left: 5px solid #28a745;
+        }
+        .task-item .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        .task-item .actions button {
+            padding: 8px 12px;
+            font-size: 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .task-item .actions .complete {
+            background-color: #28a745;
+            color: white;
+        }
+        .task-item .actions .complete:hover {
+            background-color: #218838;
+        }
+        .task-item .actions .delete {
+            background-color: #dc3545;
+            color: white;
+        }
+        .task-item .actions .delete:hover {
+            background-color: #c82333;
+        }
+
+        @media (max-width: 480px) {
+            .app-container {
+                padding: 15px;
+            }
+            h1 {
+                font-size: 1.4em;
+            }
+            .task-input input, .task-input select, .task-input button {
+                font-size: 12px;
+                padding: 8px;
+            }
+            .filters select, .filters button {
+                font-size: 12px;
+                padding: 8px;
+            }
+            .task-item {
+                padding: 10px;
+            }
+            .task-item .actions button {
+                font-size: 10px;
+                padding: 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- アプリのHTMLコンテンツ -->
+    <div class="app-container">
+        <h1>TODO</h1>
+        <div class="controls">
+            <div class="task-input">
+                <input type="text" id="taskInput" placeholder="タスクを追加">
+                <input type="date" id="dueDate">
+                <select id="categorySelect">
+                    <option value="個人">個人</option>
+                    <option value="仕事">仕事</option>
+                    <option value="その他">その他</option>
+                </select>
+                <select id="prioritySelect">
+                    <option value="1">低</option>
+                    <option value="2">中</option>
+                    <option value="3">高</option>
+                </select>
+                <button onclick="addTask()">追加</button>
+            </div>
+        </div>
+        <div class="filters">
+            <select id="filterSelect" onchange="filterTasks()">
+                <option value="すべて">すべて</option>
+                <option value="完了">完了</option>
+                <option value="未完了">未完了</option>
+            </select>
+            <button onclick="sortTasksByPriority()">優先度で並び替え</button>
+        </div>
+        <ul class="task-list" id="taskList"></ul>
+    </div>
+
+    <script>
+        const taskList = document.getElementById('taskList');
+        const taskInput = document.getElementById('taskInput');
+        const categorySelect = document.getElementById('categorySelect');
+        const dueDate = document.getElementById('dueDate');
+        const prioritySelect = document.getElementById('prioritySelect');
+        const filterSelect = document.getElementById('filterSelect');
+
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+        // 自動的に今日の日付を設定
+        const today = new Date().toISOString().split('T')[0];
+        dueDate.value = today;
+
+        function renderTasks() {
+            taskList.innerHTML = '';
+            tasks.forEach((task, index) => {
+                if (!shouldDisplayTask(task)) return;
+
+                const taskItem = document.createElement('li');
+                taskItem.className = `task-item ${task.completed ? 'completed' : ''} ${task.dueDate && task.dueDate < today && !task.completed ? 'due-soon' : ''}`;
+                taskItem.innerHTML = `
+                    <span>
+                        <strong>${task.category}</strong>: ${task.text} <em>(期限: ${task.dueDate || 'なし'})</em> <strong>[優先度: ${task.priority === 3 ? '高' : task.priority === 2 ? '中' : '低'}]</strong>
+                        <small style="display: block; color: gray;">作成日: ${task.createdDate}</small>
+                    </span>
+                    <div class="actions">
+                        <button class="complete" onclick="toggleComplete(${index})">${task.completed ? '未完了に戻す' : '完了'}</button>
+                        <button class="delete" onclick="deleteTask(${index})">削除</button>
+                    </div>
+                `;
+                taskList.appendChild(taskItem);
+            });
+        }
+
+        function addTask() {
+            const taskText = taskInput.value.trim();
+            const category = categorySelect.value;
+            const due = dueDate.value;
+            const priority = prioritySelect.value;
+
+            if (taskText === '') return alert('タスク内容を入力してください。');
+
+            tasks.push({
+                text: taskText,
+                category: category,
+                dueDate: due,
+                priority: parseInt(priority, 10),
+                completed: false,
+                createdDate: today
+            });
+            taskInput.value = '';
+            dueDate.value = today;
+            saveTasks();
+            renderTasks();
+        }
+
+        function toggleComplete(index) {
+            tasks[index].completed = !tasks[index].completed;
+            saveTasks();
+            renderTasks();
+        }
+
+        function deleteTask(index) {
+            tasks.splice(index, 1);
+            saveTasks();
+            renderTasks();
+        }
+
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        function filterTasks() {
+            renderTasks();
+        }
+
+        function sortTasksByPriority() {
+            tasks.sort((a, b) => b.priority - a.priority || b.priority - a.priority);
+            renderTasks();
+        }
+
+        function shouldDisplayTask(task) {
+            const filter = filterSelect.value;
+            if (filter === '完了') return task.completed;
+            if (filter === '未完了') return !task.completed;
+            return true;
+        }
+
+        renderTasks();
+    </script>
+</body>
+</html>
