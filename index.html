@@ -167,6 +167,15 @@
                 overflow-x: auto;
                 padding-bottom: 10px;
             }
+            .filter-group {
+                display: none;
+            }
+            .filter-group:first-child {
+                display: block;
+            }
+            .filter-group:first-child label {
+                display: none;
+            }
         }
 
         @media (max-width: 480px) {
@@ -227,7 +236,7 @@
                 </select>
             </div>
             <div class="filter-group">
-                <label for="filterSelect">完了予定日</label>
+                <label for="filterSelect">完了・未完了</label>
                 <select id="filterSelect" onchange="filterTasks()">
                     <option value="すべて">すべて</option>
                     <option value="完了">完了</option>
@@ -313,7 +322,7 @@
             localStorage.setItem('tasks', JSON.stringify(tasks));
         }
 
-               function filterTasks() {
+        function filterTasks() {
             renderTasks();
         }
 
@@ -342,4 +351,3 @@
     </script>
 </body>
 </html>
-
