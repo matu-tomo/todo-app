@@ -46,11 +46,9 @@
             border-color: #007bff;
             outline: none;
         }
-        .task-input input[type="text"], .task-input input[type="date"] {
-            flex: 2;
-        }
-        .task-input select {
+        .task-input input[type="text"], .task-input input[type="date"], .task-input select {
             flex: 1;
+            min-width: 120px;
         }
         .task-input button {
             flex: 1;
@@ -186,9 +184,6 @@
             }
             .filters {
                 flex-wrap: wrap;
-            }
-            .task-input input[type="date"] {
-                flex: 2;
             }
         }
     </style>
