@@ -168,6 +168,7 @@
             <div class="task-input">
                 <input type="text" id="taskInput" placeholder="タスクを追加">
                 <input type="date" id="dueDate">
+                <label for="dueDate">📅</label>
                 <select id="categorySelect">
                     <option value="個人">個人</option>
                     <option value="仕事">仕事</option>
@@ -182,12 +183,17 @@
             </div>
         </div>
         <div class="filters">
+            <select id="filterCategory" onchange="filterByCategory()">
+                <option value="すべて">すべて</option>
+                <option value="個人">個人</option>
+                <option value="仕事">仕事</option>
+                <option value="その他">その他</option>
+            </select>
             <select id="filterSelect" onchange="filterTasks()">
                 <option value="すべて">すべて</option>
                 <option value="完了">完了</option>
                 <option value="未完了">未完了</option>
             </select>
-            <button onclick="sortTasksByPriority()">優先度で並び替え</button>
         </div>
         <ul class="task-list" id="taskList"></ul>
     </div>
@@ -199,6 +205,7 @@
         const dueDate = document.getElementById('dueDate');
         const prioritySelect = document.getElementById('prioritySelect');
         const filterSelect = document.getElementById('filterSelect');
+        const filterCategory = document.getElementById('filterCategory');
 
         let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 
@@ -269,15 +276,18 @@
             renderTasks();
         }
 
-        function sortTasksByPriority() {
-            tasks.sort((a, b) => b.priority - a.priority || b.priority - a.priority);
+        function filterByCategory() {
             renderTasks();
         }
 
         function shouldDisplayTask(task) {
-            const filter = filterSelect.value;
-            if (filter === '完了') return task.completed;
-            if (filter === '未完了') return !task.completed;
+            const statusFilter = filterSelect.value;
+            const categoryFilter = filterCategory.value;
+
+            if (statusFilter === '完了' && !task.completed) return false;
+            if (statusFilter === '未完了' && task.completed) return false;
+            if (categoryFilter !== 'すべて' && task.category !== categoryFilter) return false;
+
             return true;
         }
 
