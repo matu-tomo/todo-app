@@ -4,13 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>TODO</title>
-    <link rel="manifest" href="manifest.json">
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./service-worker.js')
-                .then(() => console.log('Service Worker Registered'));
-        }
-    </script>
     <style>
         body {
             font-family: 'Roboto', sans-serif;
@@ -43,14 +36,21 @@
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
+            align-items: center;
         }
-        .task-input input[type="text"], .task-input select, .task-input input[type="date"], .task-input button {
+        .task-input input[type="text"], .task-input select, .task-input button {
             flex: 1;
             padding: 10px;
             font-size: 14px;
             border: 1px solid #ddd;
             border-radius: 5px;
             transition: all 0.3s ease;
+        }
+        .task-input input[type="date"] {
+            display: inline;
+        }
+        .task-input label {
+            display: none;
         }
         .task-input button {
             flex: 1;
@@ -136,32 +136,27 @@
         }
 
         @media (max-width: 480px) {
-            .app-container {
-                padding: 15px;
+            .task-input input[type="date"] {
+                display: none;
             }
-            h1 {
-                font-size: 1.4em;
+            .task-input label {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 40px;
+                height: 40px;
+                background-color: #007bff;
+                border-radius: 50%;
+                color: white;
+                cursor: pointer;
             }
-            .task-input input, .task-input select, .task-input button {
-                font-size: 12px;
-                padding: 8px;
-            }
-            .filters select, .filters button {
-                font-size: 12px;
-                padding: 8px;
-            }
-            .task-item {
-                padding: 10px;
-            }
-            .task-item .actions button {
-                font-size: 10px;
-                padding: 6px;
+            .task-input label:hover {
+                background-color: #0056b3;
             }
         }
     </style>
 </head>
 <body>
-    <!-- アプリのHTMLコンテンツ -->
     <div class="app-container">
         <h1>TODO</h1>
         <div class="controls">
