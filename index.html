@@ -31,6 +31,7 @@
         }
         .task-input {
             display: flex;
+            flex-wrap: wrap;
             gap: 10px;
             margin-bottom: 20px;
         }
@@ -64,9 +65,9 @@
         }
         .filters {
             display: flex;
+            flex-wrap: wrap;
             gap: 10px;
             margin-bottom: 20px;
-            flex-wrap: wrap;
         }
         .filter-group {
             flex: 1;
@@ -152,6 +153,15 @@
             h1 {
                 font-size: 1.8em;
             }
+            .task-input {
+                flex-wrap: nowrap;
+                gap: 5px;
+            }
+            .filters {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                padding-bottom: 10px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -162,10 +172,11 @@
                 font-size: 1.5em;
             }
             .task-input {
-                flex-direction: column;
+                flex-wrap: wrap;
+                gap: 5px;
             }
             .filters {
-                flex-direction: column;
+                flex-wrap: wrap;
             }
         }
     </style>
@@ -270,7 +281,7 @@
                 dueDate: due,
                 priority: parseInt(priority, 10),
                 completed: false,
-                createdDate: today,
+                createdDate: today
             });
             taskInput.value = '';
             dueDate.value = today;
@@ -323,4 +334,5 @@
     </script>
 </body>
 </html>
+
 
